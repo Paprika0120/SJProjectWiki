@@ -1,0 +1,29 @@
+//总体情况
+match(n:`联系人`)-[:委托]-(m:`投标单位`)return n,m
+
+
+//同一联系人 多家公司
+match (n:`联系人`)-[:委托]-(m:`投标单位`)
+with count(n) as 公司数量, n
+where 公司数量 > 1
+with n
+match(n:`联系人`)-[:委托]-(m:`投标单位`)
+return n,m
+
+
+//投标情况
+match (n:`联系人`)-[:委托]-(m:`投标单位`)
+with count(n) as 公司数量, n
+where 公司数量 > 1 
+with n
+match path = (n)-[:委托]-(m:`投标单位`)-[:投标]-(b:标段)
+return path
+
+
+//所有的关系网
+match (m:`投标单位`)-[:委托]-(n:`联系人`)
+with count(n) as 公司数量, n
+where 公司数量 > 1
+with n
+match path = (n)-[:委托]-(m)-[:股东关系*]-(g:股东)
+return path

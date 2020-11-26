@@ -1,0 +1,37 @@
+# Cypher 语句的几种模式
+1、节点语法：采用一对圆括号来表示节点。如：()、(foo)
+
+
+2、关系语法：使用一对短横线表示无方向关系，有方向加箭头。如：-[role]-、x-[:ACTED_IN]->y、-[role:ACTED_IN]->
+
+
+3、模式语法：将节点和关系的语法组合在一起可以表达模式。如：
+(n: 股东:{姓名: ”张三“})-[r:股东关系]->(m: 投标单位{单位名称: ”XX公司"})
+
+
+
+
+#常用的语句
+
+1.创建节点语句
+
+CREATE (n {name:"张三"}) //创建节点并给节点分配一个属性
+CREATE ({name:"李四"})-[r:have]->({bookname:"设计模式"}) //创建一个关系，给两个节点建立关系指定关系类型、方向和绑定一个方向变量
+
+2.查询语句
+
+MATCH (n{name:"张三"}) RETURN n //根据属性匹配节点信息
+MATCH (n:Person)-[:FRIEND]->(m:Person) WHERE n.name = '张三' //匹配节点时指定标签、属性和关系类型
+MATCH (n)-[k:KNOWS]->(f) WHERE k.since < 2000 RETURN f //根据关系属性过滤
+
+3.节点更新和删除
+
+MATCH (n {name:'张三'}) SET n={age:20} //修改节点信息,覆盖节点属性
+MATCH (n {name:'张三'}) SET n+={age:20} RETURN n //该语句不会删除掉name属性，而是在节点中新增age属性
+MATCH (n{name:'张三'}) remove n.age RETURN n //删除节点属性
+MATCH (a)-[r:KNOWS]->(b) DELETE r,b //删除一个节和关系
+
+4.索引和约束
+
+CREATE INDEX ON :Person(name) //为"Person"标签的name属性创建索引
+DROP CONSTRAINT ON (n:Person) ASSERT n.name IS UNIQUE //创建节点属性唯一约束

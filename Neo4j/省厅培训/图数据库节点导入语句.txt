@@ -1,0 +1,47 @@
+# 节点
+LOAD CSV with headers FROM "file:///公司节点.csv" AS line
+create (a:投标单位{投标单位名称:line.投标单位})
+
+
+LOAD CSV with headers FROM "file:///标段节点.csv" AS line
+create (a:标段{标段名称:line.标段信息})
+
+LOAD CSV with headers FROM "file:///联系人节点.csv" AS line
+create (a:联系人{联系人名称:line.联系人})
+
+LOAD CSV with headers FROM "file:///股东节点.csv" AS line
+create (a:股东{股东姓名:line.股东})
+
+
+
+
+# 关系
+LOAD CSV WITH HEADERS FROM 'file:///中标单位信息表.csv' AS row
+WITH row.中标单位 AS 中标单位名称, row.标段信息 AS 标段名称
+MATCH (from:标段 {标段名称: 标段名称})
+MATCH (to:投标单位 {投标单位名称: 中标单位名称})
+MERGE (from)-[rel:中标]->(to)
+RETURN count(rel)
+
+
+LOAD CSV WITH HEADERS FROM 'file:///投标信息表.csv' AS row
+WITH row.投标单位 AS 投标单位名称, row.标段信息 AS 标段名称
+MATCH (to:标段 {标段名称: 标段名称})
+MATCH (from:投标单位 {投标单位名称: 投标单位名称})
+MERGE (from)-[rel:投标]->(to)
+RETURN count(rel)
+
+LOAD CSV WITH HEADERS FROM 'file:///投标信息表.csv' AS row
+WITH row.联系人 AS 联系人姓名, row.投标单位 AS 投标单位名称
+MATCH (to:联系人 {联系人名称: 联系人姓名})
+MATCH (from:投标单位 {投标单位名称: 投标单位名称})
+MERGE (from)-[rel:委托]->(to)
+RETURN count(rel)
+
+
+LOAD CSV WITH HEADERS FROM 'file:///工商信息表.csv' AS row
+WITH row.股东 AS 股东姓名, row.投标单位 AS 投标单位名称, row.股权 as 股权
+MATCH (to:投标单位 {投标单位名称: 投标单位名称})
+MATCH (from:股东 {股东姓名: 股东姓名})
+MERGE (from)-[rel:股东关系{股东关系:股权}]->(to)
+RETURN count(rel)
